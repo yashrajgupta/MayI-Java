@@ -2,7 +2,7 @@
 MayI is yet another library that simplifies the process of requesting permissions at runtime for Harmony devices.
 
 ## Screenshot
-
+![Demo screenshot](mayi_screenshot.gif "gif demo")
 ​
 ## Source
 This library is inspired by the [MayI](https://github.com/ThanosFisherman/MayI-Java) library version 1.5
@@ -16,12 +16,12 @@ This library aims to reduce boilerplate code needed to request permissions at ru
 1. For using Mayi module in sample app, include the source code and add the below dependencies in entry/build.gradle to generate hap/mayi.har.
 ```java
 dependencies {
-    implementation project(':circleimageview')
+    implementation project(':mayi')
     implementation fileTree(dir: 'libs', include: ['*.har'])
     testCompile 'junit:junit:4.12'
 }
 ```
-2. For using CircleImageView in separate application using har file, add the har file in the entry/libs folder and add the dependencies in entry/build.gradle file.
+2. For using Mayi in separate application using har file, add the har file in the entry/libs folder and add the dependencies in entry/build.gradle file.
 ```java
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.har'])
@@ -30,6 +30,18 @@ dependencies {
 ```
 ​
 ## Usage
+### Add onRequestPermissionsFromUserResult in MainAbility
+To get the result of the permission requests, we need to have this overridden method in MainAbility:
+
+```java
+@Override
+public void onRequestPermissionsFromUserResult(int requestCode, String[] permissions, int[] grantResults) {
+    super.onRequestPermissionsFromUserResult(requestCode, permissions, grantResults);
+    PermissionManager permissionManager = PermissionManager.getInstance();
+    permissionManager.requestPermissionsResult(requestCode, permissions, grantResults);
+    permissionManager.closeSlice();
+}
+```
 ### Single Permission
 To request a **single permission** using this library, you just need to call `Mayi` with a valid `AbilitySlice` and use `withPermission` method:
 
@@ -37,13 +49,13 @@ To request a **single permission** using this library, you just need to call `Ma
 public class MainAbilitySlice extends AbilitySlice {
     @Override
     public void onStart(Intent intent) {
-        super.onStart(intent);
-	    Mayi.withActivity(MainAbilitySlice.this)
-            .withPermission(SystemPermission.MICROPHONE)
-            .onResult(permission -> permissionResultSingle(permission))
-            .onRationale((permission, token) -> permissionRationaleSingle(permission,token))
-            .check();
-	}
+	super.onStart(intent);
+	Mayi.withActivity(MainAbilitySlice.this)
+	.withPermission(SystemPermission.MICROPHONE)
+	.onResult(permission -> permissionResultSingle(permission))
+	.onRationale((permission, token) -> permissionRationaleSingle(permission,token))
+	.check();
+   }
 }
 ```
 
@@ -51,11 +63,11 @@ public class MainAbilitySlice extends AbilitySlice {
 
 ```java
 private void permissionResultSingle(PermissionBean permission) {
-	new ToastDialog(getContext()).setText("PERMISSION RESULT " + permission.toString()).show();
+    new ToastDialog(getContext()).setText("PERMISSION RESULT " + permission.toString()).show();
 }
  
 private void permissionRationaleSingle(PermissionBean bean, PermissionToken token) {
-	new ToastDialog(getContext()).setText("Should show rationale for " + bean.getSimpleName() + " permission").show();
+    new ToastDialog(getContext()).setText("Should show rationale for " + bean.getSimpleName() + " permission").show();
     token.skipPermissionRequest();   
 }
 ```
@@ -68,12 +80,12 @@ public class MainAbilitySlice extends AbilitySlice{
     @Override
     public void onStart(Intent intent) {
         super.onStart(intent);
-	    Mayi.withActivity(this)
-            .withPermission(SystemPermission.MICROPHONE, SystemPermission.LOCATION)
-            .onRationale(this::permissionRationaleMulti)
-            .onResult(this::permissionResultMulti)
-            .check();
-	}
+        Mayi.withActivity(this)
+        .withPermission(SystemPermission.MICROPHONE, SystemPermission.LOCATION)
+        .onRationale(this::permissionRationaleMulti)
+        .onResult(this::permissionResultMulti)
+        .check();
+    }
 }
 ```
 
@@ -81,10 +93,10 @@ Again possible custom-defined methods for the above example could be something l
 
 ```java
 private void permissionResultMulti(PermissionBean[] permissions) {
-	new ToastDialog(getContext()).setText("MULTI PERMISSION RESULT " + Arrays.deepToString(permissions)).show();
+    new ToastDialog(getContext()).setText("MULTI PERMISSION RESULT " + Arrays.deepToString(permissions)).show();
 
 private void permissionRationaleMulti(PermissionBean[] permissions, PermissionToken token) {
-	new ToastDialog(getContext()).setText("Rationales for Multiple Permissions " + Arrays.deepToString(permissions)).show();
+    new ToastDialog(getContext()).setText("Rationales for Multiple Permissions " + Arrays.deepToString(permissions)).show();
     token.continuePermissionRequest();
 }
 ```
@@ -101,7 +113,7 @@ If you think there is going to be an error in your Mayi integration, just call a
     .check());
     
 private void inCaseOfError(Exception e) {
-	new ToastDialog(getContext()).setText("ERROR " + e.toString()).show();
+    new ToastDialog(getContext()).setText("ERROR " + e.toString()).show();
 }
 ```
 
