@@ -1,5 +1,8 @@
 package com.thanosfisherman.mayi;
 
+/**
+ * Class to define the structure of a Permission.
+ */
 public class PermissionBean {
     public final String name;
     private boolean isGranted;
@@ -22,9 +25,7 @@ public class PermissionBean {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final PermissionBean that = (PermissionBean) o;
-
         return isGranted == that.isGranted && name.equals(that.name);
     }
 

@@ -1,7 +1,7 @@
 package com.thanosfisherman.mayi;
 
 /**
- * Interface to continue or stop the permission request.
+ * Interface to define the continue or stop the permission request methods.
  */
 public interface PermissionToken {
 

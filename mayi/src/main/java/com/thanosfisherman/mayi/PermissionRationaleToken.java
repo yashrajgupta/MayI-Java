@@ -3,17 +3,17 @@ package com.thanosfisherman.mayi;
 import java.lang.ref.WeakReference;
 
 final class PermissionRationaleToken implements PermissionToken {
-    private final WeakReference<PermissionManager> permissionManager;
+    private final WeakReference<Mayi> mayiWeakReference;
     private boolean isTokenResolved = false;
 
-    PermissionRationaleToken(PermissionManager permissionManager) {
-        this.permissionManager = new WeakReference<>(permissionManager);
+    PermissionRationaleToken(Mayi mayiObject) {
+        this.mayiWeakReference = new WeakReference<>(mayiObject);
     }
 
     @Override
     public void continuePermissionRequest() {
         if (!isTokenResolved) {
-            permissionManager.get().onContinuePermissionRequest();
+            mayiWeakReference.get().onContinuePermissionRequest();
             isTokenResolved = true;
         }
     }
@@ -21,7 +21,7 @@ final class PermissionRationaleToken implements PermissionToken {
     @Override
     public void skipPermissionRequest() {
         if (!isTokenResolved) {
-            permissionManager.get().onSkipPermissionRequest();
+            mayiWeakReference.get().onSkipPermissionRequest();
             isTokenResolved = true;
         }
     }

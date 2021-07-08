@@ -1,11 +1,21 @@
+/*
+ * Copyright (C) 2020-21 Application Library Engineering Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.thanosfisherman.mayi.slice;
 
-import static ohos.agp.utils.LayoutAlignment.CENTER;
-
-import com.thanosfisherman.mayi.Mayi;
-import com.thanosfisherman.mayi.PermissionBean;
-import com.thanosfisherman.mayi.PermissionToken;
-import com.thanosfisherman.mayi.ResourceTable;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
 import ohos.agp.components.Button;
@@ -13,14 +23,14 @@ import ohos.agp.components.Component;
 import ohos.agp.components.LayoutScatter;
 import ohos.agp.components.Text;
 import ohos.agp.window.dialog.ToastDialog;
-import ohos.hiviewdfx.HiLog;
-import ohos.hiviewdfx.HiLogLabel;
 import ohos.security.SystemPermission;
-
+import com.thanosfisherman.mayi.Mayi;
+import com.thanosfisherman.mayi.PermissionBean;
+import com.thanosfisherman.mayi.PermissionToken;
+import com.thanosfisherman.mayi.ResourceTable;
 import java.util.Arrays;
 
 public class MainAbilitySlice extends AbilitySlice {
-    private static final HiLogLabel HILOGLABEL = new HiLogLabel(0, 0, "AbilitySlice");
     private Component toastComponent;
     private Text toastText;
 
@@ -59,13 +69,18 @@ public class MainAbilitySlice extends AbilitySlice {
     }
 
     private void permissionRationaleSingle(PermissionBean bean, PermissionToken token) {
-        HiLog.debug(HILOGLABEL, "Yash AbilitySlice Rationale " + bean.getSimpleName() + " permission");
         toastComponent = LayoutScatter.getInstance(this).parse(ResourceTable.Layout_toast_ui, null, false);
         toastText = (Text) toastComponent.findComponentById(ResourceTable.Id_toastUi);
         toastText.setText("Should show rationale for " + bean.getSimpleName() + " permission");
-        new ToastDialog(this.getApplicationContext()).setDuration(500)
-                .setComponent(toastComponent).setAlignment(CENTER).show();
-        token.continuePermissionRequest();
+        if (bean.getSimpleName().toLowerCase().contains("microphone")) {
+            new ToastDialog(this.getApplicationContext()).setDuration(500)
+                    .setComponent(toastComponent).show();
+            token.skipPermissionRequest();
+        } else {
+            new ToastDialog(this.getApplicationContext()).setDuration(500)
+                    .setComponent(toastComponent).show();
+            token.continuePermissionRequest();
+        }
     }
 
     private void permissionResultMulti(PermissionBean[] permissions) {
@@ -76,12 +91,11 @@ public class MainAbilitySlice extends AbilitySlice {
     }
 
     private void permissionRationaleMulti(PermissionBean[] permissions, PermissionToken token) {
-        HiLog.debug(HILOGLABEL, "Yash AbilitySlice Rationale " + Arrays.deepToString(permissions));
         toastComponent = LayoutScatter.getInstance(this).parse(ResourceTable.Layout_toast_ui, null, false);
         toastText = (Text) toastComponent.findComponentById(ResourceTable.Id_toastUi);
         toastText.setText("Rationales for Multiple Permissions " + Arrays.deepToString(permissions));
         new ToastDialog(this.getApplicationContext()).setDuration(500)
-                .setComponent(toastComponent).setAlignment(CENTER).show();
+                .setComponent(toastComponent).show();
         token.continuePermissionRequest();
     }
 

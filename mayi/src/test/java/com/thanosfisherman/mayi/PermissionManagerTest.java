@@ -1,25 +1,37 @@
+/*
+ * Copyright (C) 2020-21 Application Library Engineering Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.thanosfisherman.mayi;
 
-import com.thanosfisherman.mayi.listeners.multi.PermissionResultMultiListener;
-import com.thanosfisherman.mayi.listeners.multi.RationaleMultiListener;
-import com.thanosfisherman.mayi.listeners.single.RationaleSingleListener;
+import static org.mockito.Mockito.*;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.bundle.IBundleManager;
+import com.thanosfisherman.mayi.listeners.multi.PermissionResultMultiListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
-
 @RunWith(MockitoJUnitRunner.class)
-public class PermissionManagerTest{
+public class PermissionManagerTest {
 
     @InjectMocks
     PermissionManager permissionManager;
@@ -27,16 +39,20 @@ public class PermissionManagerTest{
     AbilitySlice slice;
     @Mock
     PermissionResultMultiListener permissionResultMultiListener;
-    @Mock
-    RationaleSingleListener rationaleSingleListener;
-    @Mock
-    RationaleMultiListener rationaleMultiListener;
 
     @Before
     public void setUp() {
-
         permissionManager = PermissionManager.getInstance();
         permissionManager.setmAbility(slice);
+    }
+
+    @Test
+    public void testGetBeanResults() {
+        String[] allPermissions = {"SystemPermission.LOCATION", "SystemPermission.MICROPHONE"};
+        int[] grantResults = {IBundleManager.PERMISSION_DENIED, IBundleManager.PERMISSION_GRANTED};
+        final List<PermissionBean> beansResultList = new LinkedList<>();
+        permissionManager.getBeanResults(beansResultList, allPermissions, grantResults);
+        verify(slice).canRequestPermission(allPermissions[0]);
     }
 
     @Test
@@ -44,14 +60,12 @@ public class PermissionManagerTest{
         int requestCode = 1001;
         String[] permissions = {"SystemPermission.LOCATION"};
         int[] grantResults = {IBundleManager.PERMISSION_DENIED};
-        String[] allPermissions = {"SystemPermission.LOCATION", "SystemPermission.MICROPHONE"};
         List<String> deniedPermissions = new ArrayList<String>();
         deniedPermissions.add("SystemPermission.LOCATION");
         List<String> grantedPermissions = new ArrayList<String>();
         grantedPermissions.add("SystemPermission.MICROPHONE");
-        permissionManager.checkPermissions(allPermissions, deniedPermissions, grantedPermissions);
-        permissionManager.setListeners(null, permissionResultMultiListener,
-                rationaleSingleListener, rationaleMultiListener);
+        permissionManager.checkPermissions(deniedPermissions, grantedPermissions);
+        permissionManager.setListeners(null, permissionResultMultiListener);
         permissionManager.requestPermissionsResult(requestCode, permissions, grantResults);
         PermissionBean pBean;
         pBean = new PermissionBean("SystemPermission.MICROPHONE");
@@ -68,14 +82,13 @@ public class PermissionManagerTest{
     }
 
     @Test
-    public void testOnContinuePermissionRequest() {
-        String[] allPermissions = {"SystemPermission.LOCATION", "SystemPermission.MICROPHONE"};
+    public void testRequestPermissions() {
         List<String> deniedPermissions = new ArrayList<String>();
         deniedPermissions.add("SystemPermission.LOCATION");
         List<String> grantedPermissions = new ArrayList<String>();
         grantedPermissions.add("SystemPermission.MICROPHONE");
-        permissionManager.checkPermissions(allPermissions, deniedPermissions, grantedPermissions);
-        permissionManager.onContinuePermissionRequest();
+        permissionManager.checkPermissions(deniedPermissions, grantedPermissions);
+        permissionManager.requestPermissions();
         verify(slice).requestPermissionsFromUser(deniedPermissions.toArray(new
                 String[deniedPermissions.size()]), 1001);
     }

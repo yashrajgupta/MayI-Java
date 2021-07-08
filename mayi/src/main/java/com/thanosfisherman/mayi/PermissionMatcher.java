@@ -2,12 +2,13 @@ package com.thanosfisherman.mayi;
 
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.bundle.IBundleManager;
-
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 
-
+/**
+ * Class to process the permissions and classify them to granted and denied permissions.
+ */
 class PermissionMatcher {
     private List<String> mDeniedPermissions;
     private List<String> mGrantedPermissions;
